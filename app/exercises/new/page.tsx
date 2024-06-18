@@ -4,13 +4,21 @@ import { useRouter } from 'next/navigation';
 import ExerciseForm from '../../components/ExerciseForm';
 import { createExercise } from '../../services/exerciseService';
 
+export interface ExerciseInput {
+  id: string;
+  name: string;
+  description: string;
+  muscleGroup: string;
+}
+
 const NewExercisePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (data: FormData) => {
-    const exercise = {
+    const exercise: ExerciseInput = {
+      id: data.get('id') as string,
       name: data.get('name') as string,
       description: data.get('description') as string,
       muscleGroup: data.get('muscleGroup') as string,
@@ -39,3 +47,4 @@ const NewExercisePage: React.FC = () => {
 };
 
 export default NewExercisePage;
+

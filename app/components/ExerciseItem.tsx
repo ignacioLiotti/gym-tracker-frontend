@@ -57,7 +57,11 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ exerciseId, onDelete }) => 
 
   const handleAddSet = async () => {
     try {
-      await addSetToExercise(exerciseId, { repetitions, weight });
+      await addSetToExercise(exerciseId, {
+        repetitions, weight,
+        id: '',
+        exerciseId: ''
+      });
       const updatedSets = await getExerciseSets(exerciseId);
       setExerciseSets(updatedSets);
       setRepetitions(0);
@@ -146,7 +150,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ exerciseId, onDelete }) => 
 export default ExerciseItem;
 
 
-function DumbbellIcon(props) {
+function DumbbellIcon(props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
