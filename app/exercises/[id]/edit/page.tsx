@@ -1,43 +1,55 @@
 'use client'
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import ExerciseForm from '../../../components/ExerciseForm';
-import { updateExercise, getExerciseById, createExercise, getExercises } from '../../../services/exerciseService';
+import { updateExercise, getExerciseById, Exercise } from '../../../services/exerciseService';
 
-export const action = async (data: FormData) => {
-  const exercise = {
-    id: data.get('id') as string,
-    name: data.get('name') as string,
-    description: data.get('description') as string,
-    muscleGroup: data.get('muscleGroup') as string,
-  };
+const EditExercisePage: React.FC = () => {
+  const router = useRouter();
+  const { id } = useParams();
+  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  try {
-    await updateExercise(Number(exercise.id), exercise);
-    // redirect('/exercises');
-  } catch (error) {
-    console.error('Failed to update exercise', error);
-  }
-};
-
-const EditExercisePage: React.FC = ({ params }) => {
-  const [exercise, setExercise] = React.useState(null);
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchExercise = async () => {
-      const data = await getExerciseById(params.id);
-      setExercise(data);
+      try {
+        const data = await getExerciseById(id as string);
+        setExercise(data);
+      } catch (err) {
+        console.error('Failed to fetch exercise', err);
+        setError('Failed to fetch exercise');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchExercise();
-  }, [params.id]);
+  }, [id]);
 
-  if (!exercise) return <p>Loading...</p>;
+  const handleSave = async (data: FormData) => {
+    const exerciseData = {
+      id: data.get('id') as string,
+      name: data.get('name') as string,
+      description: data.get('description') as string,
+      muscleGroup: data.get('muscleGroup') as string,
+    };
+
+    try {
+      await updateExercise(id as string, exerciseData);
+      router.push('/exercises');
+    } catch (error) {
+      console.error('Failed to update exercise', error);
+    }
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Edit Exercise</h1>
-      <ExerciseForm action={action} defaultValues={exercise} />
+      {exercise && <ExerciseForm action={handleSave} defaultValues={exercise} />}
     </div>
   );
 };
