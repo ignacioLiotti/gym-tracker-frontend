@@ -1,7 +1,7 @@
 // CreateRoutine.tsx
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createRoutine } from '../../services/routineService';
+import { createRoutine } from '../services/routineService';
 import ExerciseSelector from './ExerciseSelector';
 
 const CreateRoutine: React.FC = () => {
