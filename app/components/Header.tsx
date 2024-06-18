@@ -1,17 +1,15 @@
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
-export default function HomePage() {
-
+export default function Header() {
   return (
-    <div>
-      <h1>Welcome to Gym Tracker</h1>
+    <header>
       <nav>
         <ul>
+          <li><Link href="/">Home</Link></li>
           <li><Link href="/exercises">Exercises</Link></li>
           <li><Link href="/routines">Routines</Link></li>
         </ul>
       </nav>
-    </div>
+    </header>
   );
 }
