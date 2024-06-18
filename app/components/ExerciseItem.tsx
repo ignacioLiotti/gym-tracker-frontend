@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 interface ExerciseItemProps {
   exerciseId: string;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const ExerciseItem: React.FC<ExerciseItemProps> = ({ exerciseId, onDelete }) => {

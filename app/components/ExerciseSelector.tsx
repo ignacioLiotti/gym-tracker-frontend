@@ -1,6 +1,6 @@
 // ExerciseSelector.tsx
 import React, { useEffect, useState } from 'react';
-import { getExercises, Exercise } from '../../services/exerciseService';
+import { Exercise, getExercises } from '../services/exerciseService';
 
 interface ExerciseSelectorProps {
   selectedExercises: string[];

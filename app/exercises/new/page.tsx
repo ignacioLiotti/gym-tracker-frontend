@@ -32,7 +32,7 @@ const NewExercisePage: React.FC = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Create New Exercise</h1>
       {error && <p className="text-red-500">{error}</p>}
-      <ExerciseForm onSubmit={handleSubmit} />
+      <ExerciseForm />
       {loading && <p>Loading...</p>}
     </div>
   );

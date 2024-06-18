@@ -11,7 +11,7 @@ interface ExerciseFormInputs {
 }
 
 interface ExerciseFormProps {
-  action: (data: FormData) => Promise<void>;
+  action?: (data: FormData) => Promise<void>;
   defaultValues?: ExerciseFormInputs;
 }
 
@@ -24,7 +24,9 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ action, defaultValues }) =>
     formData.append('name', data.name);
     formData.append('description', data.description);
     formData.append('muscleGroup', data.muscleGroup);
-    action(formData);
+    if (action) {
+      action(formData);
+    }
   };
 
   return (

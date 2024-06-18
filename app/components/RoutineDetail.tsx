@@ -1,6 +1,6 @@
 // RoutineDetail.tsx
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getRoutineById, Routine } from '../services/routineService';
 import { getExercises, Exercise } from '../services/exerciseService';
 import ExerciseItem from './ExerciseItem';
@@ -11,8 +11,7 @@ const RoutineDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { id } = router.query;
-
+  const { id } = useParams();
   useEffect(() => {
     const fetchRoutine = async () => {
       if (id) {
@@ -45,7 +44,7 @@ const RoutineDetail: React.FC = () => {
           <p className="text-gray-600 mb-4">{routine.description}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {exercises.map(exercise => (
-              <ExerciseItem key={exercise.id} exercise={exercise} onDelete={() => { }} />
+              <ExerciseItem key={exercise.id} exerciseId={exercise.id} onDelete={() => { }} />
             ))}
           </div>
         </>

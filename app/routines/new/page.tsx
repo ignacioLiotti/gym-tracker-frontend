@@ -70,15 +70,15 @@ const NewRoutinePage: React.FC = () => {
         <div className="mb-4">
           <h2 className="text-lg font-bold mb-2">Select Exercises</h2>
           {exercises.map(exercise => (
-            <div key={exercise[0]} className="mb-2">
+            <div key={exercise.id} className="mb-2">
               <label className="inline-flex items-center">
                 <input
                   type="checkbox"
-                  value={exercise[0]}
-                  onChange={() => handleExerciseChange(exercise[0])}
+                  value={exercise.id}
+                  onChange={() => handleExerciseChange(exercise.id)}
                   className="form-checkbox"
                 />
-                <span className="ml-2">{exercise[1]}</span>
+                <span className="ml-2">{exercise.name}</span>
               </label>
             </div>
           ))}
