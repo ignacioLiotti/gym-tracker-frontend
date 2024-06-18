@@ -1,29 +1,39 @@
-'use server'
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ExerciseForm from '../../components/ExerciseForm';
-import { redirect } from 'next/navigation';
 import { createExercise } from '../../services/exerciseService';
 
-export const action = async (data: FormData) => {
-  const exercise = {
-    name: data.get('name') as string,
-    description: data.get('description') as string,
-    muscleGroup: data.get('muscleGroup') as string,
+const NewExercisePage: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (data: FormData) => {
+    const exercise = {
+      name: data.get('name') as string,
+      description: data.get('description') as string,
+      muscleGroup: data.get('muscleGroup') as string,
+    };
+
+    try {
+      setLoading(true);
+      await createExercise(exercise);
+      router.push('/exercises');
+    } catch (error) {
+      console.error('Failed to create exercise', error);
+      setError('Failed to create exercise');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  try {
-    await createExercise(exercise);
-    // redirect('/exercises');
-  } catch (error) {
-    console.error('Failed to create exercise', error);
-  }
-};
-
-const NewExercisePage: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Create New Exercise</h1>
-      <ExerciseForm action={action} />
+      {error && <p className="text-red-500">{error}</p>}
+      <ExerciseForm onSubmit={handleSubmit} />
+      {loading && <p>Loading...</p>}
     </div>
   );
 };
