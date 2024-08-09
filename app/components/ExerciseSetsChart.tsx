@@ -1,55 +1,107 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart, LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ChartOptions } from 'chart.js';
+import _ from 'lodash';
 
-Chart.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+interface Set {
+  id: string;
+  exerciseId: string;
+  repetitions: string;
+  weight: string;
+  timestamp: string;
+}
 
 interface ExerciseSetsChartProps {
-  sets: { repetitions: number; weight: number }[];
+  sets: Set[];
 }
 
 const ExerciseSetsChart: React.FC<ExerciseSetsChartProps> = ({ sets }) => {
-  console.log('sets', sets);
+  const groupedSets = _.groupBy(sets, set => set.timestamp.split('T')[0]);
+
+  const averagedSets = _.mapValues(groupedSets, dailySets => ({
+    weight: _.round(_.meanBy(dailySets, set => parseFloat(set.weight)), 1),
+    repetitions: _.round(_.meanBy(dailySets, set => parseInt(set.repetitions, 10)), 0),
+  }));
+
+  const sortedEntries = Object.entries(averagedSets).sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime());
+  const limitedEntries = sortedEntries.slice(-10);
+
+  const labels = limitedEntries.map(([date]) => date);
+  const weights = limitedEntries.map(([, data]) => data.weight);
+  const repetitions = limitedEntries.map(([, data]) => data.repetitions);
+
   const data = {
-    labels: sets.map((_, index) => `Set ${index + 1}`),
+    labels,
     datasets: [
       {
         label: 'Weight',
-        data: sets.map(set => set.weight),
+        data: weights,
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
+        yAxisID: 'y-axis-weight',
       },
       {
         label: 'Repetitions',
-        data: sets.map(set => set.repetitions),
+        data: repetitions,
         borderColor: 'rgba(153, 102, 255, 1)',
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        fill: true,
+        yAxisID: 'y-axis-reps',
       },
     ],
   };
 
-  const options = {
+  const options: ChartOptions<'line'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true,
         position: 'top' as const,
       },
       title: {
         display: true,
-        text: 'Exercise Sets',
+        text: 'Exercise Progress',
       },
     },
     scales: {
-      y: {
-        beginAtZero: true,
+      'y-axis-weight': {
+        type: 'linear' as const,
+        position: 'left' as const,
+        title: {
+          display: true,
+          text: 'Weight',
+        },
+        min: Math.max(0, Math.min(...weights) - 5),
+        max: Math.max(...weights) + 5,
+      },
+      'y-axis-reps': {
+        type: 'linear' as const,
+        position: 'right' as const,
+        title: {
+          display: true,
+          text: 'Repetitions',
+        },
+        min: Math.max(0, Math.min(...repetitions) - 2),
+        max: Math.max(...repetitions) + 2,
+        grid: {
+          drawOnChartArea: false,
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Date',
+        },
       },
     },
   };
 
-  return <Line data={data} options={options} />;
+  return (
+    <div style={{ height: '400px' }}>
+      <Line data={data} options={options} />
+    </div>
+  );
 };
 
 export default ExerciseSetsChart;

@@ -47,10 +47,18 @@ export const deleteExercise = async (id: string): Promise<void> => {
 
 export const addSetToExercise = async (
 	exerciseId: string,
-	set: Set
+	set: { repetitions: number; weight: number }
 ): Promise<void> => {
-	console.log("exerciseId", exerciseId);
-	await api.post(`/exercises/${exerciseId}/sets`, set);
+	console.log("Sending set data:", { exerciseId, set });
+	try {
+		const response = await api.post(`/exercises/${exerciseId}/sets`, set);
+		console.log("Server response:", response.data);
+	} catch (error) {
+		if (error.response) {
+			console.error("Server error response:", error.response.data);
+		}
+		throw error;
+	}
 };
 
 export const getSetsByExerciseId = async (
