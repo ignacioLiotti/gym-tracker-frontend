@@ -39,10 +39,10 @@ const RoutinePage: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Routine Details</h1>
-      {routine && (
+      {/* {routine && (
         <>
-          {/* <h2 className="text-xl font-semibold">{routine[1]}</h2> */}
-          {/* <p>{routine[2]}</p> */}
+          <h2 className="text-xl font-semibold">{routine[1]}</h2>
+           <p>{routine[2]}</p>
           <h3 className="text-lg font-semibold mt-4">Exercises</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {routine?.exercises?.map(exerciseId => (
@@ -50,7 +50,7 @@ const RoutinePage: React.FC = () => {
             ))}
           </div>
         </>
-      )}
+      )} */}
     </div>
   );
 };
