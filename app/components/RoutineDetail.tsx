@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getRoutineById, Routine } from '../services/routineService';
 import { getExercises, Exercise } from '../services/exerciseService';
-import ExerciseItem from './ExerciseItem';
 
 const RoutineDetail: React.FC = () => {
   const [routine, setRoutine] = useState<Routine | null>(null);

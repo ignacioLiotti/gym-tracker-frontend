@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Routine, getRoutineById } from '@/app/services/routineService';
-import ExerciseItem from '@/app/components/ExerciseItem';
 
 const RoutinePage: React.FC = () => {
   const router = useRouter();
