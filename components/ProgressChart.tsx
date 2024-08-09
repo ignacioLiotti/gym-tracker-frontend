@@ -69,7 +69,7 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
     volume: 'Volume (kg x reps)',
   };
 
-  const renderChart = () => {
+  const renderChart = (): React.ReactElement => {
     const props = {
       data: chartData,
       margin: { top: 5, right: 30, left: 20, bottom: 5 },
@@ -98,6 +98,9 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
             <Area type="monotone" dataKey="value" fill="#8884d8" stroke="#8884d8" name={`${metricLabels[metric]}${showAggregate ? ' (Mean)' : ''}`} />
           </AreaChart>
         );
+      default:
+        // Return an empty fragment as a fallback to handle the 'undefined' case
+        return <></>;
     }
   };
 
