@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchExercises } from '@/lib/api';
-import { createRoutine } from '@/app/services/routineService';
 
 interface Exercise {
   id: string;
@@ -30,7 +29,7 @@ const RoutineForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name && description && selectedExercises.length > 0) {
-      await createRoutine({ name, description, exercises: selectedExercises });
+      // await createRoutine({ name, description, exercises: selectedExercises });
       setName('');
       setDescription('');
       setSelectedExercises([]);
