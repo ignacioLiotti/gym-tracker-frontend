@@ -6,8 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ExerciseProgressChart from '@/components/ProgressChart';
-import { fetchExercise, fetchSets, createSet } from '@/lib/api';
-import { Exercise, Set } from '@/lib/types';
+import { fetchExercise, fetchSets, createSet, Set, Exercise } from '@/lib/api';
 
 export default function ExerciseDetailsPage() {
   const params = useParams();
@@ -90,7 +89,7 @@ export default function ExerciseDetailsPage() {
       };
       try {
         const createdSet = await createSet(exercise.id, newSet);
-        setCurrentWorkoutSets(prevSets => [...prevSets, createdSet]);
+        setCurrentWorkoutSets(prevSets => [...prevSets, createdSet] as Set[]);
         setReps('');
         setWeight('');
       } catch (error) {

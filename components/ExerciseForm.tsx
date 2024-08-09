@@ -4,9 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { createExercise } from '@/lib/api';
+import { Exercise, createExercise } from '@/lib/api';
 import { toast } from '@/components/ui/use-toast';
-import { Exercise } from '@/lib/types';
 
 interface ExerciseFormProps {
   onExerciseCreated: (exercise: Exercise, isOptimistic: boolean) => void;

@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import ExerciseForm from '@/components/ExerciseForm';
 import { ExerciseList } from '@/components/ExerciseList';
-import { fetchExercises, deleteExercise } from '@/lib/api';
-import { Exercise } from '@/lib/types';
+import { fetchExercises, deleteExercise, Exercise } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function ExercisesPage() {

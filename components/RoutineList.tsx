@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { fetchRoutines, deleteRoutine } from '@/lib/api';
 
 interface Routine {
   id: string;
@@ -13,17 +12,17 @@ interface Routine {
 const RoutineList: React.FC = () => {
   const [routines, setRoutines] = useState<Routine[]>([]);
 
-  useEffect(() => {
-    const loadRoutines = async () => {
-      const data = await fetchRoutines();
-      setRoutines(data);
-    };
-    loadRoutines();
-  }, []);
+  // useEffect(() => {
+  //   const loadRoutines = async () => {
+  //     const data = await fetchRoutines();
+  //     setRoutines(data);
+  //   };
+  //   loadRoutines();
+  // }, []);
 
   const handleDelete = async (id: string) => {
-    await deleteRoutine(id);
-    setRoutines(routines.filter(routine => routine.id !== id));
+    // await deleteRoutine(id);
+    // setRoutines(routines.filter(routine => routine.id !== id));
   };
 
   return (
