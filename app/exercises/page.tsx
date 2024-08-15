@@ -3,8 +3,16 @@
 import React, { useState, useEffect } from 'react';
 import ExerciseForm from '@/components/ExerciseForm';
 import { ExerciseList } from '@/components/ExerciseList';
-import { fetchExercises, deleteExercise, Exercise } from '@/lib/api';
-import { useToast } from '@/components/ui/use-toast';
+import { 
+  fetchRoutine, 
+  fetchExercise, 
+  createSet, 
+  deleteExerciseFromRoutine, 
+  addExerciseToRoutine, 
+  fetchExercises, 
+  Exercise, 
+  Set 
+} from '@/lib/api';import { useToast } from '@/components/ui/use-toast';
 
 export default function ExercisesPage() {
   const [exercises, setExercises] = useState<Exercise[]>([]);

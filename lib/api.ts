@@ -1,7 +1,7 @@
 // src/lib/api.ts
 
 // .env file
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api"
 
 export interface Exercise {
 	id: string;
@@ -72,3 +72,23 @@ export const createSet = async (
 
 export const deleteSet = (exerciseId: string, setId: string): Promise<void> =>
 	apiCall(`/exercises/${exerciseId}/sets/${setId}`, "DELETE");
+
+export interface Routine {
+	id: string;
+	name: string;
+	exerciseIds: string[];
+  }
+  
+  export const fetchRoutines = (): Promise<Routine[]> => apiCall("/routines");
+  
+  export const fetchRoutine = (id: string): Promise<Routine> =>
+	apiCall(`/routines/${id}`);
+  
+  export const createRoutine = (routine: Omit<Routine, "id">): Promise<Routine> =>
+	apiCall("/routines", "POST", routine);
+  
+  export const deleteExerciseFromRoutine = (routineId: string, exerciseId: string): Promise<void> =>
+	apiCall(`/routines/${routineId}/exercises/${exerciseId}`, "DELETE");
+
+  export const addExerciseToRoutine = (routineId: string, exerciseId: string): Promise<Routine> =>
+	apiCall(`/routines/${routineId}/exercises`, "POST", { exerciseId });
