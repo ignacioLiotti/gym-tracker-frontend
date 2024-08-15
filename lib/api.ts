@@ -1,7 +1,9 @@
 // src/lib/api.ts
+// create the createsetresponse interface
 
 // .env file
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api"
+const API_BASE_URL =
+	process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api";
 
 export interface Exercise {
 	id: string;
@@ -16,9 +18,10 @@ export interface Set {
 	repetitions: number;
 	weight: number;
 	timestamp: string;
+	duration: number;
 }
 
-interface CreateSetResponse {
+export interface CreateSetResponse {
 	set: Set;
 	updatedExercise: Exercise;
 }
@@ -58,6 +61,16 @@ export const deleteExercise = (id: string): Promise<void> =>
 export const fetchSets = (exerciseId: string): Promise<Set[]> =>
 	apiCall(`/exercises/${exerciseId}/sets`);
 
+export const deleteRoutine = async (id: string): Promise<void> => {
+	const response = await fetch(`${API_BASE_URL}/routines/${id}`, {
+		method: "DELETE",
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to delete routine");
+	}
+};
+
 export const createSet = async (
 	exerciseId: string,
 	set: Omit<Set, "id" | "timestamp">
@@ -67,6 +80,7 @@ export const createSet = async (
 		"POST",
 		set
 	);
+	console.log(set);
 	return response;
 };
 
@@ -77,18 +91,24 @@ export interface Routine {
 	id: string;
 	name: string;
 	exerciseIds: string[];
-  }
-  
-  export const fetchRoutines = (): Promise<Routine[]> => apiCall("/routines");
-  
-  export const fetchRoutine = (id: string): Promise<Routine> =>
+}
+
+export const fetchRoutines = (): Promise<Routine[]> => apiCall("/routines");
+
+export const fetchRoutine = (id: string): Promise<Routine> =>
 	apiCall(`/routines/${id}`);
-  
-  export const createRoutine = (routine: Omit<Routine, "id">): Promise<Routine> =>
+
+export const createRoutine = (routine: Omit<Routine, "id">): Promise<Routine> =>
 	apiCall("/routines", "POST", routine);
-  
-  export const deleteExerciseFromRoutine = (routineId: string, exerciseId: string): Promise<void> =>
+
+export const deleteExerciseFromRoutine = (
+	routineId: string,
+	exerciseId: string
+): Promise<void> =>
 	apiCall(`/routines/${routineId}/exercises/${exerciseId}`, "DELETE");
 
-  export const addExerciseToRoutine = (routineId: string, exerciseId: string): Promise<Routine> =>
+export const addExerciseToRoutine = (
+	routineId: string,
+	exerciseId: string
+): Promise<Routine> =>
 	apiCall(`/routines/${routineId}/exercises`, "POST", { exerciseId });

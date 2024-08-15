@@ -5,8 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from 'next/link';
-import { fetchRoutines, createRoutine, Routine } from '@/lib/api';
+import { fetchRoutines, createRoutine, deleteRoutine, Routine } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
+import { Trash2 } from 'lucide-react';
 
 export default function RoutinesPage() {
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -35,7 +36,10 @@ export default function RoutinesPage() {
     e.preventDefault();
     if (newRoutineName.trim()) {
       try {
-        const newRoutine = await createRoutine({ name: newRoutineName.trim() });
+        const newRoutine = await createRoutine({
+          name: newRoutineName.trim(),
+          exerciseIds: []
+        });
         setRoutines([...routines, newRoutine]);
         setNewRoutineName('');
         toast({
@@ -53,10 +57,28 @@ export default function RoutinesPage() {
     }
   };
 
+  const handleDeleteRoutine = async (id: string) => {
+    try {
+      await deleteRoutine(id);
+      setRoutines(routines.filter(routine => routine.id !== id));
+      toast({
+        title: "Success",
+        description: "Routine deleted successfully",
+      });
+    } catch (error) {
+      console.error('Failed to delete routine:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete routine. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Routines</h1>
-      
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Add New Routine</CardTitle>
@@ -80,9 +102,18 @@ export default function RoutinesPage() {
               <CardTitle>{routine.name}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Link href={`/routines/${routine.id}`}>
-                <Button>View Routine</Button>
-              </Link>
+              <div className="flex justify-between items-center">
+                <Link href={`/routines/${routine.id}`}>
+                  <Button>View Routine</Button>
+                </Link>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => handleDeleteRoutine(routine.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

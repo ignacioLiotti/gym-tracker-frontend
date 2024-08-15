@@ -15,6 +15,9 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
+  TimerIcon,
+  Flame,
+  Dumbbell,
 } from "lucide-react";
 
 export default function ExerciseDetailsPage() {
@@ -109,8 +112,8 @@ export default function ExerciseDetailsPage() {
   };
 
   const addSet = async () => {
-    if (exercise && reps && weight) {
-      const newSet: Omit<Set, "id" | "timestamp"> & { duration: number } = {
+    if (exercise && reps && weight && isSetTimerActive) {  // Added isSetTimerActive check
+      const newSet: Omit<Set, "id" | "timestamp"> & { duration: number } = {  // Changed duration type to number
         repetitions: parseInt(reps),
         weight: parseFloat(weight),
         duration: setTimer,
@@ -128,7 +131,6 @@ export default function ExerciseDetailsPage() {
       }
     }
   };
-  console.log(currentWorkoutSets);
 
   const endWorkout = () => {
     setIsWorkoutActive(false);
@@ -204,20 +206,25 @@ export default function ExerciseDetailsPage() {
           )}
           {isWorkoutActive && (
             <div className="space-y-4">
-              <div className="flex space-x-4">
+              <div className={`flex space-x-4`}>
                 <Input
                   type="number"
-                  placeholder="Reps"
+                  placeholder={!isSetTimerActive ? "----------------" : "Reps"}
                   value={reps}
                   onChange={(e) => setReps(e.target.value)}
+                  disabled={!isSetTimerActive}
                 />
                 <Input
                   type="number"
-                  placeholder="Weight (kg)"
+                  placeholder={!isSetTimerActive ? "----------------" : "Weight"}
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
+                  disabled={!isSetTimerActive}
                 />
-                <Button onClick={addSet}>
+                <Button
+                  onClick={addSet}
+                  disabled={!isSetTimerActive}
+                >
                   <Plus className="mr-2 h-4 w-4" />
                   Add Set
                 </Button>
@@ -250,37 +257,45 @@ export default function ExerciseDetailsPage() {
                         index > 0 ? currentWorkoutSets[index - 1] : null;
                       const repsDiff = prevSet
                         ? calculateDifference(
-                            set.repetitions,
-                            prevSet.repetitions
-                          )
+                          set.repetitions,
+                          prevSet.repetitions
+                        )
                         : null;
                       const weightDiff = prevSet
                         ? calculateDifference(set.weight, prevSet.weight)
                         : null;
                       const durationDiff = prevSet
-                        ? calculateDifference(set.timestamp, prevSet.timestamp)
+                        ? calculateDifference(set.duration, prevSet.duration)
                         : null;
-
                       return (
                         <li
                           key={set.id}
                           className="bg-secondary p-2 rounded-md"
                         >
-                          <div>
-                            {set.repetitions} reps at {set.weight} kg (Duration:{" "}
-                            {formatTime(set.timestamp)})
+                          <div className="flex gap-2 justify-between" >
+                            <div className="flex gap-2 justify-start items-center">
+                              <b className="text-lg flex items-center">{set.repetitions} Reps</b>
+                              at
+                              <b className="text-lg">{set.weight}kg </b>
+                            </div>
+                            <div className="flex items-center font-bold">
+
+                              <TimerIcon />
+                              {set.duration}s
+                            </div>
                           </div>
                           {prevSet && (
                             <div className="text-sm mt-1">
-                              <span className="mr-2">
-                                Reps: {repsDiff.icon} {repsDiff.value}
-                              </span>
-                              <span className="mr-2">
-                                Weight: {weightDiff.icon} {weightDiff.value} kg
-                              </span>
-                              <span>
-                                Duration: {durationDiff.icon}{" "}
-                                {formatTime(durationDiff.value)}
+                              <div className="flex justify-between">
+                                <span className="mr-2 flex justify-start items-center">
+                                  Reps:  {repsDiff?.value} {repsDiff?.icon}
+                                </span>
+                                <span className="mr-2 flex justify-start items-center">
+                                  Weight:  {weightDiff?.value} kg {weightDiff?.icon}
+                                </span>
+                              </div>
+                              <span className="flex justify-start items-center">
+                                Duration: {" "} {set.duration}s {durationDiff?.icon}
                               </span>
                             </div>
                           )}
@@ -305,14 +320,7 @@ export default function ExerciseDetailsPage() {
         </CardContent>
       </Card>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Progress Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ExerciseProgressChart data={allSets} exerciseName={exercise.name} />
-        </CardContent>
-      </Card>
+      <ExerciseProgressChart data={allSets} exerciseName={exercise.name} />
 
       <Card className="mb-6">
         <CardHeader>
@@ -330,6 +338,6 @@ export default function ExerciseDetailsPage() {
           </ul>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }
