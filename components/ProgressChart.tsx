@@ -5,6 +5,7 @@ import { Weight, Repeat, Dumbbell, LayoutGrid, LayoutList, BarChart2, LineChart 
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface ExerciseData {
   id: string;
@@ -26,6 +27,7 @@ interface ExerciseProgressChartProps {
 
 type ChartType = 'bar' | 'line' | 'area';
 type Metric = 'repetitions' | 'weight' | 'volume' | 'duration' | 'restTime';
+type TimeRange = 'lastMonth' | 'last3Months' | 'lastYear' | 'allTime';
 
 const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exerciseName }) => {
   const [chartData, setChartData] = useState<ChartData[]>([]);
@@ -33,13 +35,36 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
   const [showAggregate, setShowAggregate] = useState(false);
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [dualMetricMode, setDualMetricMode] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>('allTime');
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}`; // Format as MM/DD
+  };
 
   useEffect(() => {
+    let filteredData = data;
+
+    // Filter data based on selected time range
+    const now = new Date();
+    switch (timeRange) {
+      case 'lastMonth':
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setMonth(now.getMonth() - 1)));
+        break;
+      case 'last3Months':
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setMonth(now.getMonth() - 3)));
+        break;
+      case 'lastYear':
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setFullYear(now.getFullYear() - 1)));
+        break;
+      // 'allTime' doesn't need filtering
+    }
+
     let processedData: ChartData[];
 
     if (showAggregate) {
-      const aggregatedData = data.reduce((acc, item, index, arr) => {
-        const date = new Date(item.timestamp).toLocaleDateString();
+      const aggregatedData = filteredData.reduce((acc, item, index, arr) => {
+        const date = formatDate(item.timestamp);
         if (!acc[date]) {
           acc[date] = {
             repetitions: { sum: 0, count: 0 },
@@ -79,9 +104,9 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
         return entry;
       });
     } else {
-      processedData = data.map((item, index, arr) => {
+      processedData = filteredData.map((item, index, arr) => {
         const entry: ChartData = {
-          date: new Date(item.timestamp).toLocaleDateString(),
+          date: formatDate(item.timestamp),
           repetitions: item.repetitions,
           weight: item.weight,
           volume: item.repetitions * item.weight,
@@ -105,7 +130,7 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
     }
 
     setChartData(processedData);
-  }, [data, selectedMetrics, showAggregate]);
+  }, [data, selectedMetrics, showAggregate, timeRange]);
 
   if (chartData.length === 0) {
     return <div>Loading chart data...</div>;
@@ -282,10 +307,11 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
       }
     }
   }
+
   return (
 
     <Card className="mb-6">
-      <CardHeader >
+      <CardHeader>
         <CardTitle className='flex justify-between'>
           Progress Over Time
           <div className="flex items-center space-x-2">
@@ -319,18 +345,32 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
                 <AreaChartIcon className="h-4 w-4" />
               </Button>
             </div>
-            <Button
-              variant={showAggregate ? 'default' : 'outline'}
-              size="icon"
-              onClick={() => setShowAggregate(!showAggregate)}
-              title={showAggregate ? "Show Individual Sets" : "Show Aggregated Sets"}
-            >
-              {showAggregate ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-            </Button>
+            <div className='flex justify-center items-center gap-2'>
+
+              <Button
+                variant={showAggregate ? 'default' : 'outline'}
+                size="icon"
+                onClick={() => setShowAggregate(!showAggregate)}
+                title={showAggregate ? "Show Individual Sets" : "Show Aggregated Sets"}
+              >
+                {showAggregate ? <LayoutList className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+              </Button>
+              <Select value={timeRange} onValueChange={(value: TimeRange) => setTimeRange(value)}>
+                <SelectTrigger className="w-[100px] px-2">
+                  <SelectValue placeholder="Select time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="lastMonth">Last Month</SelectItem>
+                  <SelectItem value="last3Months">Last 3 Months</SelectItem>
+                  <SelectItem value="lastYear">Last Year</SelectItem>
+                  <SelectItem value="allTime">All Time</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
 
-          <div className="w-full h-[300px] flex items-start justify-start m-0 p-0 -ml-16" style={{ width: 'calc(100vw + 40px)' }}>
+          <div className="w-full h-[300px] flex items-start justify-start m-0 p-0 -ml-16" style={{ width: 'calc(100vw + 10px)' }}>
             <ResponsiveContainer width="100%" height="100%">
               {renderChart()}
             </ResponsiveContainer>

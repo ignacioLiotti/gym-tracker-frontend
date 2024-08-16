@@ -22,6 +22,11 @@ export interface Set {
 }
 
 export interface CreateSetResponse {
+	id: string;
+	repetitions: number;
+	weight: number;
+	timestamp: string;
+	duration: number;
 	set: Set;
 	updatedExercise: Exercise;
 }
@@ -90,7 +95,7 @@ export const deleteSet = (exerciseId: string, setId: string): Promise<void> =>
 export interface Routine {
 	id: string;
 	name: string;
-	exerciseIds: string[];
+	exercises: string[];
 }
 
 export const fetchRoutines = (): Promise<Routine[]> => apiCall("/routines");

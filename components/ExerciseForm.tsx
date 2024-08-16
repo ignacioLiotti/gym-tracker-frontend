@@ -96,16 +96,6 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ onExerciseCreated, onExerci
                 placeholder="Enter muscle group"
               />
             </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="sets">Sets</Label>
-              <Input
-                id="sets"
-                type="number"
-                value={sets}
-                onChange={(e) => setSets(e.target.value)}
-                placeholder="Enter number of sets"
-              />
-            </div>
           </div>
         </CardContent>
         <CardFooter>

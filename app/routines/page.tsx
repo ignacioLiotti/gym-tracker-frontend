@@ -38,7 +38,7 @@ export default function RoutinesPage() {
       try {
         const newRoutine = await createRoutine({
           name: newRoutineName.trim(),
-          exerciseIds: []
+          exercises: []
         });
         setRoutines([...routines, newRoutine]);
         setNewRoutineName('');
