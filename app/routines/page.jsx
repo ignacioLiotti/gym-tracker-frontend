@@ -474,6 +474,8 @@ export default function RoutinesPage() {
 			"kg"
 		);
 
+		console.log(exercise);
+
 		return (
 			<Card
 				key={index}
@@ -530,7 +532,7 @@ export default function RoutinesPage() {
 							{exercise.lastRecordedSet?.split(",").slice(1, 2)} kg
 						</div>
 						<div className='text-xs font-semibold'>
-							Sets: {exercise.sets}/
+							Sets: {exercise.sets.length}/
 							<Dialog>
 								<DialogTrigger asChild>
 									<span className='cursor-pointer underline'>
