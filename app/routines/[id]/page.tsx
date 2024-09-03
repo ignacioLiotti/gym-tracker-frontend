@@ -6,10 +6,12 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { fetchRoutine, fetchExercise, createSet, deleteExerciseFromRoutine, addExerciseToRoutine, fetchExercises, Exercise, Set, fetchSets, CreateSetResponse } from '@/lib/api';
+import { fetchRoutine, fetchExercise, createSet, deleteExerciseFromRoutine, addExerciseToRoutine, fetchExercises, Exercise, Set, fetchSets, CreateSetResponse, fetchExerciseLastWorkout } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
-import { Minus, PauseCircle, PlayCircle, Plus, StopCircle, TimerIcon, Trash, TrendingDown, TrendingUp } from 'lucide-react';
+import { Eye, Minus, PauseCircle, PlayCircle, Plus, StopCircle, TimerIcon, Trash, Trash2, TrendingDown, TrendingUp } from 'lucide-react';
 import { WorkoutForm } from '@/components/WorkoutForm';
+import Link from 'next/link';
+import ExerciseCard from './ExerciseCard';
 
 interface RoutineExercise extends Exercise {
   lastDone?: string;
@@ -33,6 +35,7 @@ export default function RoutineDetailPage() {
   const [availableExercises, setAvailableExercises] = useState<Exercise[]>([]);
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const { toast } = useToast();
+  const [completedExercises, setCompletedExercises] = useState<RoutineExercise[]>([]);
 
   useEffect(() => {
     loadRoutine();
@@ -98,9 +101,8 @@ export default function RoutineDetailPage() {
   };
 
   const handleEndWorkout = (exerciseId: string) => {
-    setRoutine(prevRoutine => ({
-      ...prevRoutine!,
-      exercises: prevRoutine!.exercises?.map(ex =>
+    setRoutine(prevRoutine => {
+      const updatedExercises = prevRoutine!.exercises?.map(ex =>
         ex.id === exerciseId ? {
           ...ex,
           isWorkoutActive: false,
@@ -109,8 +111,28 @@ export default function RoutineDetailPage() {
           setTimer: 0,
           currentWorkoutSets: []
         } : ex
-      )
-    }));
+      );
+
+      // Find the completed exercise
+      const completedExercise = updatedExercises?.find(ex => ex.id === exerciseId);
+      if (completedExercise) {
+        setCompletedExercises(prevCompleted => {
+          // Check if the exercise is already in the completedExercises state
+          const isAlreadyAdded = prevCompleted.some(ex => ex.id === exerciseId);
+          if (!isAlreadyAdded) {
+            // If not, add it to the state
+            return [...prevCompleted, completedExercise];
+          }
+          // If it is, return the state unchanged
+          return prevCompleted;
+        });
+      }
+
+      return {
+        ...prevRoutine!,
+        exercises: updatedExercises
+      };
+    });
   };
 
   const handleAddSet = async (exerciseId: string, reps: number, weight: number, duration: number) => {
@@ -166,7 +188,7 @@ export default function RoutineDetailPage() {
   const handleAddExercise = async () => {
     if (selectedExercise) {
       try {
-        await addExerciseToRoutine(id, selectedExercise);
+        await addExerciseToRoutine(id, selectedExercise, 0);
         const newExercise = await fetchExercise(selectedExercise);
         setRoutine(prevRoutine => ({
           ...prevRoutine!,
@@ -204,6 +226,16 @@ export default function RoutineDetailPage() {
     }));
   };
 
+  const handleBringBackExercise = (exerciseId: string) => {
+    // Find the exercise in the completedExercises list
+    const exerciseToBringBack = completedExercises.find(ex => ex.id === exerciseId);
+    if (!exerciseToBringBack) return;
+
+    // Remove it from the completedExercises list
+    setCompletedExercises(prevCompleted => prevCompleted.filter(ex => ex.id !== exerciseId));
+  };
+
+
   if (!routine) return <div>Loading...</div>;
 
   return (
@@ -233,31 +265,33 @@ export default function RoutineDetailPage() {
         </CardContent>
       </Card>
 
-      {routine.exercises?.map((exercise) => (
-        <Card key={exercise.id} className="mb-4">
-          <CardHeader>
-            <CardTitle className='flex justify-between'>
-              {exercise.name}
-              <Button size={"icon"} variant="destructive" className='size-7' onClick={() => handleRemoveExercise(exercise.id)}>
-                <Trash className='size-4' />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardFooter className="flex justify-between items-start flex-col">
-            {exercise.isWorkoutActive ? (
-              <WorkoutForm
-                exercise={exercise}
-                onAddSet={(reps, weight) => handleAddSet(exercise.id, reps, weight, exercise.setTimer)}
-                onEndWorkout={() => handleEndWorkout(exercise.id)}
-                onUpdateExercise={updateExercise}
-              />
-            ) : (
-              <Button onClick={() => handleStartWorkout(exercise.id)}>Start Workout</Button>
-            )}
-
-          </CardFooter>
-        </Card>
+      {routine.exercises.map((exercise) => (
+        <ExerciseCard
+          key={exercise.id}
+          exercise={exercise}
+          handleRemoveExercise={handleRemoveExercise}
+          handleAddSet={handleAddSet}
+          handleEndWorkout={handleEndWorkout}
+          updateExercise={updateExercise}
+          handleStartWorkout={handleStartWorkout}
+        />
       ))}
+
+
+
+      {/* <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Completed Exercises</h2>
+        {completedExercises.map((exercise) => (
+          <Card key={exercise.id} className="mb-4 border-green-500 border-2">
+            <CardHeader>
+              <CardTitle>{exercise.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <button onClick={() => handleBringBackExercise(exercise.id)}>Bring Back</button>
+            </CardContent>
+          </Card>
+        ))}
+      </div> */}
     </div>
   );
 }

@@ -31,6 +31,14 @@ export interface CreateSetResponse {
 	updatedExercise: Exercise;
 }
 
+interface ExerciseUpdate {
+	name?: string;
+	description?: string;
+	muscleGroup?: string;
+	sets?: number;
+	reps?: number;
+}
+
 async function apiCall<T>(
 	endpoint: string,
 	method: string = "GET",
@@ -55,6 +63,15 @@ export const fetchExercises = (): Promise<Exercise[]> => apiCall("/exercises");
 
 export const fetchExercise = (id: string): Promise<Exercise> =>
 	apiCall(`/exercises/${id}`);
+
+export const updateExercise = (
+	id: string,
+	updateData: ExerciseUpdate
+): Promise<Exercise> =>
+	apiCall(`/exercises/${id}`, "PUT", JSON.stringify(updateData));
+
+export const fetchExerciseLastWorkout = (id: string): Promise<Exercise> =>
+	apiCall(`/exercises/${id}/last-workout`);
 
 export const createExercise = (
 	exercise: Omit<Exercise, "id">
@@ -106,6 +123,11 @@ export const fetchRoutine = (id: string): Promise<Routine> =>
 export const createRoutine = (routine: Omit<Routine, "id">): Promise<Routine> =>
 	apiCall("/routines", "POST", routine);
 
+export const updateRoutine = (
+	id: string,
+	updateData: Partial<Omit<Routine, "id">>
+): Promise<Routine> => apiCall(`/routines/${id}`, "PUT", updateData);
+
 export const deleteExerciseFromRoutine = (
 	routineId: string,
 	exerciseId: string
@@ -114,6 +136,7 @@ export const deleteExerciseFromRoutine = (
 
 export const addExerciseToRoutine = (
 	routineId: string,
-	exerciseId: string
+	exerciseId: string,
+	sets: number
 ): Promise<Routine> =>
-	apiCall(`/routines/${routineId}/exercises`, "POST", { exerciseId });
+	apiCall(`/routines/${routineId}/exercises`, "POST", { exerciseId, sets });

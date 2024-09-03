@@ -10,7 +10,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <Header />
         {children}
-        <Footer />
+        {/* <Footer /> */}
         <Toaster />
       </body>
     </html>

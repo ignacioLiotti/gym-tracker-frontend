@@ -25,6 +25,21 @@ interface ExerciseProgressChartProps {
   exerciseName: string;
 }
 
+interface AggregatedMetric {
+  sum: number;
+  count: number;
+}
+
+interface AggregatedData {
+  [date: string]: {
+    repetitions: AggregatedMetric;
+    weight: AggregatedMetric;
+    volume: number;
+    duration: AggregatedMetric;
+    restTime: AggregatedMetric;
+  };
+}
+
 type ChartType = 'bar' | 'line' | 'area';
 type Metric = 'repetitions' | 'weight' | 'volume' | 'duration' | 'restTime';
 type TimeRange = 'lastMonth' | 'last3Months' | 'lastYear' | 'allTime';
@@ -49,13 +64,13 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
     const now = new Date();
     switch (timeRange) {
       case 'lastMonth':
-        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setMonth(now.getMonth() - 1)));
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()));
         break;
       case 'last3Months':
-        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setMonth(now.getMonth() - 3)));
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()));
         break;
       case 'lastYear':
-        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.setFullYear(now.getFullYear() - 1)));
+        filteredData = data.filter(item => new Date(item.timestamp) >= new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()));
         break;
       // 'allTime' doesn't need filtering
     }
@@ -63,13 +78,13 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
     let processedData: ChartData[];
 
     if (showAggregate) {
-      const aggregatedData = filteredData.reduce((acc, item, index, arr) => {
+      const aggregatedData = filteredData.reduce((acc: AggregatedData, item, index, arr) => {
         const date = formatDate(item.timestamp);
         if (!acc[date]) {
           acc[date] = {
             repetitions: { sum: 0, count: 0 },
             weight: { sum: 0, count: 0 },
-            volume: { sum: 0, count: 0 },
+            volume: 0,
             duration: { sum: 0, count: 0 },
             restTime: { sum: 0, count: 0 }
           };
@@ -79,8 +94,7 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
         acc[date].repetitions.count += 1;
         acc[date].weight.sum += item.weight;
         acc[date].weight.count += 1;
-        acc[date].volume.sum += item.repetitions * item.weight;
-        acc[date].volume.count += 1;
+        acc[date].volume += item.repetitions * item.weight;
         acc[date].duration.sum += item.duration;
         acc[date].duration.count += 1;
 
@@ -94,12 +108,17 @@ const ExerciseProgressChart: React.FC<ExerciseProgressChartProps> = ({ data, exe
         }
 
         return acc;
-      }, {} as Record<string, Record<Metric, { sum: number; count: number }>>);
+      }, {});
 
       processedData = Object.entries(aggregatedData).map(([date, metrics]) => {
         const entry: ChartData = { date };
         selectedMetrics.forEach(metric => {
-          entry[metric] = metrics[metric].count > 0 ? metrics[metric].sum / metrics[metric].count : 0;
+          if (metric === 'volume') {
+            entry[metric] = metrics[metric];
+          } else {
+            const metricData = metrics[metric as keyof typeof metrics];
+            entry[metric] = (metricData as AggregatedMetric).count > 0 ? (metricData as AggregatedMetric).sum / (metricData as AggregatedMetric).count : 0;
+          }
         });
         return entry;
       });
